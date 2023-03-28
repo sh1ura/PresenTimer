@@ -1,6 +1,9 @@
 # [PresenTimer](https://sh1ura.github.io/presentimer/)
 Presentation timer works on web browser with full screen display and wake lock functionality.
 
+### [English version](https://sh1ura.github.io/presentimer/)
+### [Japanese version](https://sh1ura.github.io/presentimer/jp.html)
+
 ## Manual
 ![スライド4](https://user-images.githubusercontent.com/86639425/228296141-fbf44518-862c-4c5b-a860-b1b309d67459.jpeg)
 
