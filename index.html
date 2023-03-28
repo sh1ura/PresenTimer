@@ -1,0 +1,568 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <style>
+    body {
+	margin: 0;
+	padding: 0;
+	background: #000000;
+	font-family: sans-serif;
+    }
+    .full-page {
+	width: 100vw;
+	height: 100vh;
+    }
+    table {
+	border-collapse:  collapse;
+    }
+    tr.invisible {
+	display: none;
+    }
+    td.c1st {
+	background: #4444FF;
+    }
+    td.c2nd {
+	background: #44FF44
+    }
+    td.c3rd {
+	background: #FFFF44;
+    }
+    td.cover {
+	background: #FF4444;
+    }
+    td.running {
+	background: #666666;
+    }
+    .base {
+	position: relative;
+    }
+    .over {
+	position: absolute;
+	top: 4px;
+	left: 0px;
+    }
+
+    #time {
+	font-style: monospace;
+	font-weight: bold;
+	color: white;
+	line-height: 80%;
+    }
+    #status {
+	font-style: sans-serif;
+	font-weight: bold;
+	color: white;
+	line-height: 90%;
+    }
+    
+    .button{
+	display: block;
+	width:100px;
+	margin-bottom:10px;
+	padding: 10px;
+	background-color: #eee;
+	text-align: center;
+	list-style: none;
+	cursor: pointer;
+    }
+    
+    .desc1 {
+	position: relative;
+    }
+    .desc1:hover .desc {
+	display: inline;
+    }
+    .desc {
+	border-radius: 0.3rem;
+	position: absolute;
+	display: none;
+	padding: 4px;
+	background-color: #ffffff;
+	width:120px;
+	right : -40px;
+	top : 20px;
+	font-size: 100%;
+	-moz-animation: cssAnimation 0s ease-in 2s forwards;
+	/* Firefox */
+	-webkit-animation: cssAnimation 0s ease-in 2s forwards;
+	/* Safari and Chrome */
+	-o-animation: cssAnimation 0s ease-in 2s forwards;
+	/* Opera */
+	animation: cssAnimation 0s ease-in 2s forwards;
+	-webkit-animation-fill-mode: forwards;
+	animation-fill-mode: forwards;
+    }
+    @keyframes cssAnimation {
+	to {
+            width:0;
+            height:0;
+	    padding: 0px;
+            overflow:hidden;
+	}
+    }
+    @-webkit-keyframes cssAnimation {
+	to {
+            width:0;
+            height:0;
+	    padding: 0px;
+            visibility:hidden;
+	}
+    }
+
+    #overlay{
+	position: fixed;
+	top:0;
+	z-index: 10;
+	width: 100vw;
+	height: 100vh;
+	visibility: hidden;
+	opacity: 0;
+	background: rgba(0,0,0,0.4);
+	transition: all 0.2s ease-out;
+    }
+    #overlay.overlay-on{
+	visibility: visible;
+	opacity: 1;
+    }
+
+    #box_wrap{  
+	display: flex;
+	justify-content: center;
+	align-items: center;
+    }
+    #message_box{
+	margin-top: 40px;
+	padding: 20px;
+	background-color: #fff;
+	border-radius: 0.5rem;
+	text-align: center;
+    }
+  </style>
+  <head>
+    <title>presentation timer</title>
+  </head>
+  <body>
+    <table width="100%">
+      <tr id="trtime" height="26px">
+	<td class="c1st" align="right" valign="center">
+	  <input tabindex="1" type="text" id="t1st" size="8" value="Talk">
+	  <input tabindex="5" type="text" id="1st" size="5" value="10:00">
+	<td class="c2nd" align="right" valign="center">
+	  <input tabindex="2" type="text" id="t2nd" size="8" value="Talk">
+	  <input tabindex="6" type="text" id="2nd" size="5" value="12:00">
+	<td class="c3rd" align="right" valign="center">
+	  <input tabindex="3" type="text" id="t3rd" size="8" value="Q&A">
+	  <input tabindex="7" type="text" id="3rd" size="5" value="15:00">
+	<td class="cover" align="right" valign="center">
+	  <input tabindex="4" type="text" id="tover" size="8" value="Time is up">
+      </tr>
+      <tr height="1px">
+	<td id="tb1st" class="c1st">
+	<td id="tb2nd" class="c2nd">
+	<td id="tb3rd" class="c3rd">
+	<td id="tbover" class="cover">
+      </tr>
+      <tr id="trindex" height="20px" class="invisible">
+	<td class="c1st">
+	<td class="c2nd">
+	<td class="c3rd">
+	<td class="cover">
+      </tr>
+    </table>
+    <div class="base">
+      <table width="100%">
+	<tr>
+	  <td id="bar1" width="0%" height="46px" class="c1st"><td id="bar2" width="100%">
+	</tr>
+      </table>
+      <div class="over">
+	<table id="buttontable">
+	  <tr>
+	    <td align="center">
+	      <span class="desc1">
+		<input type="image" src="fullscreen.png" width="48px" height="36px" onclick="toggleFullScreen()">
+		<span class="desc"> toggle full screen</span>
+	      </span>
+	    <td align="center">
+	      <span class="desc1">
+		<a id="url" href="http://shiura.com"><img width="48px" height="36px" src="url.png"></a>
+		<span class="desc"> generate URL with current parameters. To keep current setting, bookmark it.</span>
+	      </span>
+	    <td align="center">
+	      <span class="desc1">
+		<input type="image" src="bell.png" width="48px" height="36px" onclick="bell(1)">
+		<span class="desc"> ring a bell</span>
+	      </span>	
+	    <td align="center">
+	      <span class="desc1">
+		<input type="image" src="reset.png" width="48px" height="36px" onclick="reset()">
+		<span class="desc"> reset ellapsed time (key: r)</span>
+	      </span>
+	    <td align="center">
+	      <span class="desc1">
+		<input id="playpause" type="image" src="play.png" width="48px" height="36px" onclick="startpause()">
+		<span class="desc"> start / pause (key: space)</span>
+	      </span>
+	  </tr>
+	</table>
+      </div>
+    </div>
+    <table width="100%" height="80%">
+      <tr><td id="tbstatus" align="center" valign="center"><span id="status">Ready</span></tr>
+      <tr><td align="center" valign="center"><span id="time">00:00</span></tr>
+    </table>
+    <div id="overlay">
+      <div id="box_wrap">
+	<div id="message_box">
+	  <p id="message_txt"></p>
+	</div>
+      </div>
+    </div>
+  </body>
+</html>
+<script>
+  var running = false;
+  var t1st, t2nd, t3rd;
+  var p1st, p2nd, p3rd;
+  var total, time;
+  var begin, savedTime = 0;
+  var bellStatus = 0;
+  var ilist = ["1st", "2nd", "3rd", "t1st", "t2nd", "t3rd", "tover"];
+  
+  for(var i = 0; i < ilist.length; i++) {
+      if(localStorage.getItem(ilist[i])) {
+          document.getElementById(ilist[i]).value = localStorage.getItem(ilist[i]);
+	  getParam(ilist[i]);
+      }
+  }
+  
+  //initialize
+  document.getElementById('1st').addEventListener("change", changeGraph);
+  document.getElementById('2nd').addEventListener("change", changeGraph);
+  document.getElementById('3rd').addEventListener("change", changeGraph);
+  document.getElementById('t1st').addEventListener("change", genUrl);
+  document.getElementById('t2nd').addEventListener("change", genUrl);
+  document.getElementById('t3rd').addEventListener("change", genUrl);
+  document.getElementById('tover').addEventListener("change", genUrl);
+  window.addEventListener('resize', adjustFontSize);
+
+  // get key event
+  document.addEventListener('keydown', function() {
+      var elem = document.activeElement;
+      for(var i = 0; i < ilist.length; i++) {
+	  if(elem.id == ilist[i]) {
+	      return; // when focused at text input, do nothing
+	  }
+      }
+      if (event.key === ' ') {
+	  startpause();
+	  event.preventDefault();
+
+      }
+      else if (event.key === 'r' || event.key === 'R') {
+	  reset();
+	  event.preventDefault();
+      }
+      else if (event.key === '+') {
+	  begin -= 10000;
+	  event.preventDefault();
+      }
+  });
+
+  getValue();
+  changeGraph();
+  time = 0;
+  dispBar(0);
+  adjustFontSize();
+  genUrl();
+
+  function getParam(name) {
+      url = window.location.href;
+      name = name.replace(/[\[\]]/g, "\\$&");
+      var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+          results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      str = decodeURIComponent(results[2].replace(/\+/g, " "));
+      document.getElementById(name).value = str;
+  }
+
+  function genParam(name) {
+      var str = name;
+      str += "=";
+      str += encodeURIComponent(document.getElementById(name).value);
+      return str;
+  }
+
+  function genUrl() {
+      url = window.location.href.split('?')[0];
+      url += '?' + genParam("1st");
+      url += '&' + genParam("2nd");
+      url += '&' + genParam("3rd");
+      url += '&' + genParam("t1st");
+      url += '&' + genParam("t2nd");
+      url += '&' + genParam("t3rd");
+      url += '&' + genParam("tover");
+      document.getElementById('url').setAttribute("href", url);
+      for(var i = 0; i < ilist.length; i++) {
+	  localStorage.setItem(ilist[i], document.getElementById(ilist[i]).value);
+      }
+  }
+
+  function bellPreload() {
+      for(var i = 0; i < 3; i++) {
+	    baudio[i].load();
+	    baudio[i].play();
+		baudio[i].pause();
+	  }
+  }
+
+  var baudio = [new Audio("bell1.mp3"), new Audio("bell2.mp3"), new Audio("bell3.mp3")];
+  function bell(num) {
+      baudio[num-1].load();
+      baudio[num-1].currentTime = 0;
+      baudio[num-1].play();
+  }
+
+  function dispBar(time) {
+      var ratio = time / total;
+      if(ratio > 1) ratio = 1;
+      document.getElementById("bar1").width = String(ratio * 100)+ "%";
+      document.getElementById("bar2").width = String(100 - ratio * 100)+ "%";
+      document.getElementById('bar1').classList.remove('c1st');
+      document.getElementById('bar1').classList.remove('c2nd');
+      document.getElementById('bar1').classList.remove('c3rd');
+      document.getElementById('bar1').classList.remove('cover');
+      document.getElementById('bar2').classList.remove('cover');
+      document.getElementById('tbstatus').classList.remove('cover');
+      document.getElementById('tbstatus').classList.remove('running');
+
+      //color of bargraph
+      if(time < t1st) {
+	  document.getElementById('bar1').classList.add('c1st');
+      }
+      else if(time < t2nd) {
+	  document.getElementById('bar1').classList.add('c2nd');
+      }
+      else if(time < t3rd) {
+	  document.getElementById('bar1').classList.add('c3rd');
+      }
+      else {
+	  document.getElementById('bar1').classList.add('cover');
+	  document.getElementById('bar2').classList.add('cover');
+      }
+
+      //color of bargraph
+      if(!running) {
+	  if(time < 1) {
+	      document.getElementById('status').innerHTML = "Ready";
+	  }
+	  else {
+	      document.getElementById('status').innerHTML = "Pause";
+	  }
+      }
+      else {
+	  if(time < t1st) {
+	      document.getElementById('tbstatus').classList.add('running');
+	      document.getElementById('status').innerHTML = document.getElementById('t1st').value;
+	  }
+	  else if(time < t2nd) {
+	      document.getElementById('tbstatus').classList.add('running');
+	      document.getElementById('status').innerHTML = document.getElementById('t2nd').value;
+	      if(bellStatus < 1) {
+		  bell(1);
+		  bellStatus = 1;
+	      }
+	  }
+	  else if(time < t3rd) {
+	      document.getElementById('tbstatus').classList.add('running');
+	      document.getElementById('status').innerHTML = document.getElementById('t3rd').value;
+	      if(bellStatus < 2) {
+		  bell(2);
+		  bellStatus = 2;
+	      }
+	  }
+	  else {
+	      document.getElementById('tbstatus').classList.add('cover');
+	      document.getElementById('status').innerHTML = document.getElementById('tover').value;
+	      if(bellStatus < 3) {
+		  bell(3);
+		  bellStatus = 3;
+	      }
+	  }
+      }
+  }
+
+  function calcTime(str) {
+      var time = 0;
+      var t = str.split(':');
+      for(var i = 0; i < t.length; i++) {
+	  time *= 60;
+	  time += Number(t[i]);
+      }
+      return time;
+  }
+
+  function getValue() {
+      t1st = calcTime(document.getElementById('1st').value);
+      document.getElementById('1st').value = timeStr(t1st);
+      t2nd = calcTime(document.getElementById('2nd').value);
+      document.getElementById('2nd').value = timeStr(t2nd);
+      t3rd = calcTime(document.getElementById('3rd').value);
+      document.getElementById('3rd').value = timeStr(t3rd);
+      total = t3rd;
+      p1st = t1st / total;
+      p2nd = (t2nd - t1st) / total;
+      p3rd = (t3rd - t2nd) / total;
+      genUrl();
+  }
+
+  function changeGraph() {
+      getValue();
+      if(t2nd < t1st) {
+	  document.getElementById('2nd').value = document.getElementById('1st').value;
+	  getValue();
+      }
+      if(t3rd < t2nd) {
+	  document.getElementById('3rd').value = document.getElementById('2nd').value;
+	  getValue();
+      }      
+      document.getElementById("tb1st").width = String(p1st*100)+ "%";
+      document.getElementById("tb2nd").width = String(p2nd*100)+ "%";
+      document.getElementById("tb3rd").width = String(p3rd*100)+ "%";
+      document.getElementById("tbover").width = "0%";
+  }
+
+  var currentFontSize;
+  function adjustFontSize() {
+      var fontsize = Math.floor(Math.min(window.innerWidth / 3.5, (window.innerHeight - 100) / 1.6));
+      var timefontsize = fontsize;
+      
+      if(timeStr(time / 1000).length > 5) {
+	  timefontsize *= 0.7;
+      }
+      if(currentFontSize != timefontsize) {
+	  console.log(String(timefontsize));
+	  currentFontSize = timefontsize;
+	  document.getElementById("time").style.fontSize = String(timefontsize) + "px";
+	  document.getElementById("status").style.fontSize = String(fontsize / 2.6) + "px";
+	  document.getElementById("buttontable").setAttribute("width", String(window.innerWidth));
+      }
+  }
+
+  function timeStr(t) {
+      var sec = Math.floor(t);
+      var min = Math.floor(sec / 60);
+      var hour = Math.floor(min / 60);
+      min %= 60;
+      sec %= 60;
+      var str = "";
+      if(hour) str += String(hour) + ":";
+      str += ('00' + min).slice(-2) + ":" + ('00' + sec).slice(-2);
+      return str;
+  }
+  
+  var tstr;
+  function run() {
+      if(running) {
+	  time = Date.now() - begin;
+	  adjustFontSize();
+	  tstr = timeStr(time / 1000);
+	  document.getElementById("time").innerHTML = tstr;
+	  dispBar(time / 1000);
+	  setTimeout(run, "100");
+      }
+      keepawake();
+  }
+  
+  function startpause() {
+      if(running) { // pause
+	  running = false;
+	  dispBar(time / 1000);
+	  savedTime = time;
+	  document.getElementById('trtime').classList.remove('invisible');
+	  document.getElementById('trindex').classList.add('invisible');
+	  document.getElementById('playpause').setAttribute("src", "play.png");
+      }
+      else { // start
+	  running = true;
+	  begin = Date.now() - savedTime;
+	  adjustFontSize();
+	  setTimeout(run, "0");
+	  document.getElementById('trtime').classList.add('invisible');
+	  document.getElementById('trindex').classList.remove('invisible');
+	  document.getElementById('playpause').setAttribute("src", "pause.png");
+      }
+      bellPreload();
+      keepawake();
+  }
+
+  function reset() {
+      running = false;
+      begin = Date.now();
+      savedTime = 0;
+      time = 0;
+      bellStatus = 0;
+      document.getElementById("time").innerHTML = "00:00";
+      dispBar(0);
+      setTimeout(run, "0");
+      document.getElementById('tbstatus').classList.remove('cover');
+      document.getElementById('trtime').classList.remove('invisible');
+      document.getElementById('trindex').classList.add('invisible');
+      document.getElementById('playpause').setAttribute("src", "play.png");
+      keepawake();
+  }
+
+  function toggleFullScreen() {
+      var doc = window.document;
+      var docEl = doc.documentElement;
+      
+      var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+      var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+      
+      if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+	  requestFullScreen.call(docEl);
+      }
+      else {
+	  cancelFullScreen.call(doc);
+      }
+      keepawake();
+  }
+
+  var wakeAlert = false;
+  function keepawake() {
+      if ('wakeLock' in navigator) {
+	  try {
+	      navigator.wakeLock.request('screen');
+	      if(!wakeAlert) {
+		  alarm("wakeLock success. Screen will be kept on.", 1000);
+		  wakeApert = true;
+	      }
+	  }
+	  catch {
+	      if(!wakeAlert) {
+		  alarm("wakeLock fails.", 2000);
+		  wakeAlert = true;
+	      }
+	  }
+      }
+      else {
+	  if(!wakeAlert) {
+	      alarm("wakeLock API is not supported. Screen is not kept on.", 2000);
+	      wakeAlert = true;
+	  }
+      }
+      wakeAlert = true;
+  }
+  keepawake();
+
+  function alarm(msg, time) {
+      const overlay = document.getElementById("overlay");
+
+      overlay.classList.toggle('overlay-on');
+      document.getElementById("message_txt").textContent = msg;
+      setTimeout(function() {
+	  overlay.classList.toggle('overlay-on');
+      }, time);
+  }
+</script>
